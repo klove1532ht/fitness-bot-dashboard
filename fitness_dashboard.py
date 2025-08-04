@@ -1,2 +1,1 @@
-
-# (Python script content from previous step here)
+# Updated fitness_dashboard.py content with safe error handling and loading spinner
