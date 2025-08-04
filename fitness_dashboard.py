@@ -1,10 +1,10 @@
 
-# Final Polished Fitness Bot Dashboard
-# - Detailed meal info (images, macros, daily totals)
-# - Caching API responses
+# Final Fixed & Cached Fitness Bot Dashboard
+# - Fetches detailed meal info with macros + images
+# - Caches API calls to reduce load and save API usage
+# - Failsafe error handling (no more crashes if API fails)
 # - Debug mode toggle
-# - Persisted profile (weights) and fasting window (time pickers)
-# - Motivational progress text
+# - Persisted profile and fasting window
 
 import streamlit as st
 import pandas as pd
@@ -135,7 +135,6 @@ with tab2:
     st.subheader("Fasting Window Countdown")
     now = datetime.now().time()
     if fasting_start <= now <= fasting_end:
-        end_time_today = datetime.combine(datetime.today(), fasting_end)
         remaining = datetime.combine(datetime.today(), fasting_end) - datetime.now()
         st.success(f"Eating window is OPEN. Time left: {str(remaining).split('.')[0]}")
     else:
@@ -202,14 +201,17 @@ with tab4:
             st.markdown(f"### {day.capitalize()} - Total Calories: {meals['nutrients']['calories']:.0f}")
             for meal in meals["meals"]:
                 details = fetch_meal_details(meal['id'])
+                st.markdown(f"**{meal['title']}**")
                 if details:
                     st.image(details.get("image", ""), width=150)
-                    st.markdown(f"**{meal['title']}**")
                     if details.get("nutrition"):
-                        nutrients = {n['title']: n['amount'] for n in details['nutrition']['nutrients']}
-                        st.markdown(f"Calories: {nutrients.get('Calories', 0):.0f} | Protein: {nutrients.get('Protein', 0):.0f}g | Carbs: {nutrients.get('Carbohydrates', 0):.0f}g | Fat: {nutrients.get('Fat', 0):.0f}g")
+                        try:
+                            nutrients = {n['title']: n['amount'] for n in details['nutrition']['nutrients']}
+                            st.markdown(f"Calories: {nutrients.get('Calories', 0):.0f} | Protein: {nutrients.get('Protein', 0):.0f}g | Carbs: {nutrients.get('Carbohydrates', 0):.0f}g | Fat: {nutrients.get('Fat', 0):.0f}g")
+                        except:
+                            st.markdown("Nutrition details unavailable.")
                 else:
-                    st.markdown(f"**{meal['title']}** - Nutrition details unavailable.")
+                    st.markdown("Nutrition details unavailable.")
             st.markdown("---")
         if st.button("Download Grocery List"):
             grocery_data = fetch_grocery_list(st.session_state.meal_plan)
