@@ -1,6 +1,13 @@
 
 # Chillin' with Chino Fitness Bot - Changelog
 
+## v1.3.2 – Verified Full Fix
+- Implemented universal `safe_number_input()` for ALL numeric fields (weights, height, age, workout durations, fasting).
+- Pre-loaded safe defaults (230, 228, 170 lbs; 62 y/o; 175 cm) BEFORE rendering the UI.
+- Startup failsafe: Corrects all invalid/missing values prior to any input rendering to prevent crashes.
+- Debug Mode: Logs and highlights any auto-corrections performed at startup.
+- This build permanently eliminates the StreamlitValueBelowMinError by ensuring all inputs are validated before rendering.
+
 ## v1.3.1 – Ultimate Hotfix
 - Implemented universal `safe_number_input()` for ALL numeric inputs (weights, height, age, fasting times, workout durations, loss rate).
 - Pre-loaded safe defaults (start weight 230, current 228, goal 170, age 62, height 175cm) before rendering UI.
