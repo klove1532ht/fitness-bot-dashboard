@@ -1,1 +1,1 @@
-# v1.3 Final Build - Integrated Debug tab, weekly log archive, PDF enhancements, and all prior features.
+# v1.3.1 Ultimate Hotfix - Universal safe inputs, preloaded defaults, startup failsafe with logging.
