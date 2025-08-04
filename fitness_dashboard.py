@@ -1,1 +1,1 @@
-# v1.1 Production Hotfix - Final script with universal safeguards and changelog.
+# v1.3 Final Build - Integrated Debug tab, weekly log archive, PDF enhancements, and all prior features.
