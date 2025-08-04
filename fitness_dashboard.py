@@ -12,10 +12,12 @@ API_KEY = os.getenv("SPOONACULAR_API_KEY") or st.secrets.get("SPOONACULAR_API_KE
 
 # File paths
 LOG_DIR = "logs"
+BACKUP_DIR = os.path.join(LOG_DIR, "backups")
 PROFILE_FILE = os.path.join(LOG_DIR, "profile.csv")
 WEIGHT_LOG = os.path.join(LOG_DIR, "weight_log.csv")
 WORKOUT_LOG = os.path.join(LOG_DIR, "workout_log.csv")
 os.makedirs(LOG_DIR, exist_ok=True)
+os.makedirs(BACKUP_DIR, exist_ok=True)
 
 # Auto-create files if missing
 if not os.path.exists(PROFILE_FILE):
@@ -45,9 +47,9 @@ st.sidebar.markdown("<h2 style='color:gold;'>Chillin’ with Chino</h2>", unsafe
 
 # Sidebar Profile
 st.sidebar.header("Profile & Goals")
-start_weight = st.sidebar.number_input("Starting Weight (lbs)", min_value=50.0, max_value=600.0, step=0.1, value=float(profile_data.get('start_weight', 0)) if profile_data.get('start_weight') else 0.0)
-current_weight = st.sidebar.number_input("Current Weight (lbs)", min_value=50.0, max_value=600.0, step=0.1, value=float(profile_data.get('current_weight', 0)) if profile_data.get('current_weight') else 0.0)
-goal_weight = st.sidebar.number_input("Goal Weight (lbs)", min_value=50.0, max_value=600.0, step=0.1, value=float(profile_data.get('goal_weight', 0)) if profile_data.get('goal_weight') else 0.0)
+start_weight = st.sidebar.number_input("Starting Weight (lbs)", min_value=50.0, max_value=600.0, step=0.1, value=max(float(profile_data.get('start_weight', 50.0)), 50.0))
+current_weight = st.sidebar.number_input("Current Weight (lbs)", min_value=50.0, max_value=600.0, step=0.1, value=max(float(profile_data.get('current_weight', 50.0)), 50.0))
+goal_weight = st.sidebar.number_input("Goal Weight (lbs)", min_value=50.0, max_value=600.0, step=0.1, value=max(float(profile_data.get('goal_weight', 50.0)), 50.0))
 profile_data.update({'start_weight': start_weight, 'current_weight': current_weight, 'goal_weight': goal_weight})
 
 # Fasting window (time pickers)
@@ -103,7 +105,7 @@ def fetch_grocery_list(meal_plan):
 # Debug toggle
 debug_mode = st.sidebar.checkbox("Enable Debug Mode", value=False)
 
-# --- Download All Data ---
+# --- Backup Download ---
 if st.sidebar.button("Download All Data"):
     mem_zip = io.BytesIO()
     with zipfile.ZipFile(mem_zip, 'w') as zf:
@@ -117,4 +119,28 @@ if st.sidebar.button("Download All Data"):
     today = datetime.now().strftime("%Y-%m-%d")
     st.sidebar.download_button("Download Backup ZIP", mem_zip, file_name=f"fitness_backup_{today}.zip")
 
-# (Rest of tabs unchanged: Daily Logs, Fasting, Charts, Meal Planner)
+# --- Restore From Backup ---
+uploaded_backup = st.sidebar.file_uploader("Restore From Backup (ZIP)", type="zip")
+if uploaded_backup:
+    # Auto-backup current data before restore
+    auto_backup_name = f"auto_backup_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.zip"
+    auto_backup_path = os.path.join(BACKUP_DIR, auto_backup_name)
+    with zipfile.ZipFile(auto_backup_path, 'w') as zf:
+        zf.write(PROFILE_FILE, arcname="profile.csv")
+        zf.write(WEIGHT_LOG, arcname="weight_log.csv")
+        zf.write(WORKOUT_LOG, arcname="workout_log.csv")
+        if "meal_plan" in st.session_state:
+            zf.writestr("meal_plan.json", json.dumps(st.session_state.meal_plan, indent=2))
+    # Restore from uploaded ZIP
+    with zipfile.ZipFile(uploaded_backup, 'r') as zf:
+        zf.extractall(LOG_DIR)
+    st.success(f"Data restored successfully! Auto-backup saved as {auto_backup_name}. Please refresh the app.")
+
+# --- View Previous Backups ---
+st.sidebar.subheader("Previous Backups")
+backup_files = sorted(os.listdir(BACKUP_DIR), reverse=True)
+if backup_files:
+    selected_backup = st.sidebar.selectbox("Select a backup to download", backup_files)
+    if selected_backup:
+        with open(os.path.join(BACKUP_DIR, selected_backup), "rb") as f:
+            st.sidebar.download_button("Download Selected Backup", f, file_name=selected_backup)
