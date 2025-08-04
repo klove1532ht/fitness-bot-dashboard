@@ -1,24 +1,13 @@
 
 # Chillin' with Chino Fitness Bot - Changelog
 
-## v1.3.2 – Verified Full Fix
-- Implemented universal `safe_number_input()` for ALL numeric fields (weights, height, age, workout durations, fasting).
-- Pre-loaded safe defaults (230, 228, 170 lbs; 62 y/o; 175 cm) BEFORE rendering the UI.
-- Startup failsafe: Corrects all invalid/missing values prior to any input rendering to prevent crashes.
-- Debug Mode: Logs and highlights any auto-corrections performed at startup.
-- This build permanently eliminates the StreamlitValueBelowMinError by ensuring all inputs are validated before rendering.
-
-## v1.3.1 – Ultimate Hotfix
-- Implemented universal `safe_number_input()` for ALL numeric inputs (weights, height, age, fasting times, workout durations, loss rate).
-- Pre-loaded safe defaults (start weight 230, current 228, goal 170, age 62, height 175cm) before rendering UI.
-- Added startup failsafe: auto-corrects invalid/missing values before rendering any inputs.
-- Debug Mode now displays and logs summary of auto-corrections made at startup.
-- This build prevents any StreamlitValueBelowMinError by ensuring values always meet `min_value` before rendering.
-
-## v1.3 – Final Build
-- Added Debug & System Logs tab in the main panel with scrollable log view.
-- Added manual clear button for the active debug log.
-- Weekly auto-archive of debug logs (only the most recent archive kept).
-- Displayed date of last archived log and added a clickable download link in Debug tab.
-- PDF exports now include a timestamped header and current app version.
-- Retained all previous v1.2 fixes: universal safe inputs, failsafe resets, debug logging with highlights, and versioning.
+## v1.4 Preview (Phase 1)
+- Added ingredient exclusions (allergies/dislikes) in Settings with persistent storage.
+- Added custom macro targets (protein/fat/carb) that dynamically adjust meal plans and grocery list quantities.
+- Added 'Reset to Default Macros' button for quick revert.
+- Introduced Meal History tab:
+  - Auto-migrated current meal planner data as first history entry.
+  - Saves each weekly plan with timestamps.
+  - Displays calorie & macro summaries for each plan at a glance.
+  - Color-coded compliance indicators for macro goal alignment (green/yellow/red).
+  - Allows PDF export for each historical meal plan.
